@@ -1,5 +1,6 @@
 use sqlx::FromRow;
 use std::collections::HashMap;
+use std::collections::VecDeque;
 
 #[derive(FromRow, Clone, Debug)]
 pub struct Node {
@@ -52,6 +53,40 @@ impl Graph {
 
     pub fn shortest_path(&self, from_node_id: i32, to_node_id: i32) -> i32 {
         let mut distances = HashMap::new();
+        let mut in_queue = HashMap::new();
+        let mut queue = VecDeque::new();
+
+        distances.insert(from_node_id, 0);
+        queue.push_back(from_node_id);
+        in_queue.insert(from_node_id, true);
+
+        while let Some(current_node_id) = queue.pop_front() {
+            in_queue.insert(current_node_id, false);
+
+            if let Some(edges) = self.edges.get(&current_node_id) {
+                for edge in edges {
+                    let new_distance = distances
+                        .get(&current_node_id)
+                        .and_then(|d: &i32| d.checked_add(edge.weight))
+                        .unwrap_or(i32::MAX);
+                    let current_distance = distances.get(&edge.node_b_id).unwrap_or(&i32::MAX);
+
+                    if new_distance < *current_distance {
+                        distances.insert(edge.node_b_id, new_distance);
+
+                        if !*in_queue.get(&edge.node_b_id).unwrap_or(&false) {
+                            queue.push_back(edge.node_b_id);
+                            in_queue.insert(edge.node_b_id, true);
+                        }
+                    }
+                }
+            }
+        }
+
+        distances.get(&to_node_id).cloned().unwrap_or(i32::MAX)
+    
+        /*
+        let mut distances = HashMap::new();
         distances.insert(from_node_id, 0);
 
         for _ in 0..self.nodes.len() {
@@ -77,7 +112,8 @@ impl Graph {
         }
 
         distances.get(&to_node_id).cloned().unwrap_or(i32::MAX)
-        
+        */
+
         /*
         let mut distances = HashMap::new();
         distances.insert(from_node_id, 0);
