@@ -1,6 +1,10 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+use std::fs::File;
+use std::io::Write;
+
+
 use actix_web::web::Bytes;
 use log::error;
 
@@ -171,6 +175,8 @@ impl<T: AuthRepository + std::fmt::Debug> AuthService<T> {
         let path: PathBuf =
             Path::new(&format!("images/user_profile/{}", profile_image_name)).to_path_buf();
 
+        
+
         let output = Command::new("convert")
             .arg(&path)
             .arg("-resize")
@@ -181,6 +187,8 @@ impl<T: AuthRepository + std::fmt::Debug> AuthService<T> {
                 error!("画像リサイズのコマンド実行に失敗しました: {:?}", e);
                 AppError::InternalServerError
             })?;
+
+
 
         match output.status.success() {
             true => Ok(Bytes::from(output.stdout)),

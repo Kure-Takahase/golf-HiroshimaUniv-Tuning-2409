@@ -32,6 +32,19 @@ impl AuthRepository for AuthRepositoryImpl {
 
         Ok(user)
     }
+    
+    async fn find_dispatcher_by_user_id(
+        &self,
+        user_id: i32,
+    ) -> Result<Option<Dispatcher>, AppError> {
+        let dispatcher =
+            sqlx::query_as::<_, Dispatcher>("SELECT * FROM dispatchers WHERE user_id = ?")
+                .bind(user_id)
+                .fetch_optional(&self.pool)
+                .await?;
+
+        Ok(dispatcher)
+    }
 
     async fn find_profile_image_name_by_user_id(
         &self,
@@ -102,18 +115,7 @@ impl AuthRepository for AuthRepositoryImpl {
         Ok(dispatcher)
     }
 
-    async fn find_dispatcher_by_user_id(
-        &self,
-        user_id: i32,
-    ) -> Result<Option<Dispatcher>, AppError> {
-        let dispatcher =
-            sqlx::query_as::<_, Dispatcher>("SELECT * FROM dispatchers WHERE user_id = ?")
-                .bind(user_id)
-                .fetch_optional(&self.pool)
-                .await?;
-
-        Ok(dispatcher)
-    }
+    
 
     async fn create_dispatcher(&self, user_id: i32, area_id: i32) -> Result<(), AppError> {
         sqlx::query("INSERT INTO dispatchers (user_id, area_id) VALUES (?, ?)")

@@ -5,6 +5,12 @@ use crate::repositories::auth_repository::AuthRepositoryImpl;
 use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
 
+use std::fs::File;
+use std::io::Write;
+use std::path::Path;
+
+
+
 #[derive(Deserialize, Debug)]
 pub struct ValidateSessionQueryParams {
     session_token: Option<String>,
@@ -67,18 +73,41 @@ pub struct UserProfileImageQueryParams {
     h: Option<i32>,
 }
 
+
+fn save_image_bytes_to_file(image_bytes: &[u8], file_path: &str) -> std::io::Result<()> {
+    // 创建文件
+    let mut file = File::create(Path::new(file_path))?;
+    
+    // 将字节数组写入文件
+    file.write_all(image_bytes)?;
+    
+    Ok(())
+}
+
+
 pub async fn user_profile_image_handler(
     service: web::Data<AuthService<AuthRepositoryImpl>>,
     path: web::Path<i32>,
     query: web::Query<UserProfileImageQueryParams>,
 ) -> Result<HttpResponse, AppError> {
+
+
     let user_id = path.into_inner();
     let width = query.w.unwrap_or(500);
     let height = query.h.unwrap_or(500);
+
+    
     let profile_image_byte = service
         .get_resized_profile_image_byte(user_id, width, height)
         .await?;
+
     Ok(HttpResponse::Ok()
         .content_type("image/png")
         .body(profile_image_byte))
+    
+
+
+
+    
+
 }
