@@ -34,14 +34,19 @@ pub fn hash_password(password: &str) -> Result<String, AppError> {
 
 pub fn verify_password(hashed_password: &str, input_password: &str) -> Result<bool, AppError> {
     let input_password_bytes = input_password.as_bytes();
-    let verify_password_0 = Instant::now();
+    let verify_password_start = Instant::now();
     let parsed_hash = match PasswordHash::new(hashed_password) {
         Ok(hash) => hash,
         Err(_) => return Err(AppError::InternalServerError),
     };
-
+    let verify_password_duration0 = verify_password_start.elapsed();
+    println!("verify_password0 时间间隔: {:?}", verify_password_duration0);
+    println!("verify_password0 时间间隔: {:?}", verify_password_duration0);
     match Argon2::default().verify_password(input_password_bytes, &parsed_hash) {
-        Ok(_) => Ok(true),
+        Ok(_) => {
+            let verify_password_duration1 = verify_password_start.elapsed();
+            println!("verify_password1 时间间隔: {:?}", verify_password_duration1);
+            Ok(true)},
         Err(_) => Ok(false),
     }
 }
