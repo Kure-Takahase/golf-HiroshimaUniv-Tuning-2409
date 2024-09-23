@@ -137,48 +137,4 @@ impl Graph {
         */
     
     }
-
-    pub fn find_nearest_point(&self, from_node_id: i32, target_nodes: &[i32]) -> Vec<(i32, i32)> {
-        let mut distances = HashMap::new();
-        let mut in_queue = HashMap::new();
-        let mut queue = VecDeque::new();
-
-        distances.insert(from_node_id, 0);
-        queue.push_back(from_node_id);
-        in_queue.insert(from_node_id, true);
-
-        while let Some(current_node_id) = queue.pop_front() {
-            in_queue.insert(current_node_id, false);
-
-            if let Some(edges) = self.edges.get(&current_node_id) {
-                for edge in edges {
-                    let new_distance = distances
-                        .get(&current_node_id)
-                        .and_then(|d: &i32| d.checked_add(edge.weight))
-                        .unwrap_or(i32::MAX);
-                    let current_distance = distances.get(&edge.node_b_id).unwrap_or(&i32::MAX);
-
-                    if new_distance < *current_distance {
-                        distances.insert(edge.node_b_id, new_distance);
-
-                        if !*in_queue.get(&edge.node_b_id).unwrap_or(&false) {
-                            queue.push_back(edge.node_b_id);
-                            in_queue.insert(edge.node_b_id, true);
-                        }
-                    }
-                }
-            }
-        }
-
-        let mut result = Vec::new();
-
-        for &target_node in target_nodes {
-            if let Some(&distance) = distances.get(&target_node) {
-                result.push((distance, target_node));
-            }
-        }
-
-        result
-    }
-
 }

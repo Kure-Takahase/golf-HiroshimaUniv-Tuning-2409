@@ -125,6 +125,20 @@ impl<
 
         
         let sorted_tow_trucks_by_distance = {
+
+            let truck_node_ids: Vec<i32> = tow_trucks.iter().map(|truck| truck.node_id).collect();
+            let distances = graph.find_nearest_point(order.node_id, &truck_node_ids);
+
+            let mut tow_trucks_with_distance: Vec<_> = distances
+                .into_iter()
+                .map(|(distance, node_id)| {
+                    let truck = tow_trucks.iter().find(|truck| truck.node_id == node_id).unwrap().clone();
+                    (distance, truck)
+                })
+                .collect();
+
+
+            /*
             let mut tow_trucks_with_distance: Vec<_> = tow_trucks
                 .into_iter()
                 .map(|truck| {
@@ -137,6 +151,7 @@ impl<
                 })
                 .collect();
             //println!("{:?}", tow_trucks_with_distance);
+            */
 
             if let Some(min_truck) = tow_trucks_with_distance.iter().min_by(|a, b| a.0.partial_cmp(&b.0).unwrap()).cloned() {
                 // 移除最小元素并将其放在前面
