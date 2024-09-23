@@ -55,6 +55,34 @@ impl Graph {
         distances.insert(from_node_id, 0);
 
         for _ in 0..self.nodes.len() {
+            let mut updated = false;
+            for node_id in self.nodes.keys() {
+                if let Some(edges) = self.edges.get(node_id) {
+                    for edge in edges {
+                        let new_distance = distances
+                            .get(node_id)
+                            .and_then(|d: &i32| d.checked_add(edge.weight))
+                            .unwrap_or(i32::MAX);
+                        let current_distance = distances.get(&edge.node_b_id).unwrap_or(&i32::MAX);
+                        if new_distance < *current_distance {
+                            distances.insert(edge.node_b_id, new_distance);
+                            updated = true;
+                        }
+                    }
+                }
+            }
+            if !updated {
+                break;
+            }
+        }
+
+        distances.get(&to_node_id).cloned().unwrap_or(i32::MAX)
+        
+        /*
+        let mut distances = HashMap::new();
+        distances.insert(from_node_id, 0);
+
+        for _ in 0..self.nodes.len() {
             for node_id in self.nodes.keys() {
                 if let Some(edges) = self.edges.get(node_id) {
                     for edge in edges {
@@ -72,5 +100,6 @@ impl Graph {
         }
 
         distances.get(&to_node_id).cloned().unwrap_or(i32::MAX)
+        */
     }
 }

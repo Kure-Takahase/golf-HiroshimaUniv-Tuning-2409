@@ -4,6 +4,7 @@ use super::order_service::OrderRepository;
 use crate::errors::AppError;
 use crate::models::graph::Graph;
 use crate::models::tow_truck::TowTruck;
+use std::time::Instant;
 
 pub trait TowTruckRepository {
     async fn get_paginated_tow_trucks(
@@ -100,6 +101,7 @@ impl<
             graph.add_edge(edge);
         }
 
+        /*
         let sorted_tow_trucks_by_distance = {
             let mut tow_trucks_with_distance: Vec<_> = tow_trucks
                 .into_iter()
@@ -113,6 +115,37 @@ impl<
             tow_trucks_with_distance.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
             tow_trucks_with_distance
         };
+        */
+
+        let sorted_tow_trucks_by_distance = {
+            let mut tow_trucks_with_distance: Vec<_> = tow_trucks
+                .into_iter()
+                .map(|truck| {
+                    println!("distance_duration0 开始计时");
+                    let distance_start = Instant::now();
+                    let distance = calculate_distance(&graph, truck.node_id, order.node_id);
+                    let distance_duration0 = distance_start.elapsed();
+                    println!("distance_duration0 时间间隔: {:?}", distance_duration0);
+                    (distance, truck)
+                })
+                .collect();
+            println!("{:?}", tow_trucks_with_distance);
+
+            if let Some(min_truck) = tow_trucks_with_distance.iter().min_by(|a, b| a.0.partial_cmp(&b.0).unwrap()).cloned() {
+                // 移除最小元素并将其放在前面
+                tow_trucks_with_distance.retain(|x| !(x.0 == min_truck.0 && x.1.node_id == min_truck.1.node_id));
+                let mut sorted_trucks = vec![min_truck];
+                sorted_trucks.extend(tow_trucks_with_distance);
+                sorted_trucks
+            } else {
+                // 如果没有元素，直接返回空向量
+                vec![]
+            }
+        };
+
+
+
+
         //println!("sorted_tow_trucks_by_distance[0] : {}",sorted_tow_trucks_by_distance[0]);
         println!("sorted_tow_trucks_by_distance[0].0 : {}",sorted_tow_trucks_by_distance[0].0);
         println!("sorted_tow_trucks_by_distance[1].0 : {}",sorted_tow_trucks_by_distance[0].0);
