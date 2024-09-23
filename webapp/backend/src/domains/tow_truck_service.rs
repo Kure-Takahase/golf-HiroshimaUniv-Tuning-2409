@@ -128,11 +128,11 @@ impl<
             let mut tow_trucks_with_distance: Vec<_> = tow_trucks
                 .into_iter()
                 .map(|truck| {
-                    println!("distance_duration0 开始计时");
-                    let distance_start = Instant::now();
+                    //println!("distance_duration0 开始计时");
+                    //let distance_start = Instant::now();
                     let distance = calculate_distance(&mut graph, truck.node_id, order.node_id);
-                    let distance_duration0 = distance_start.elapsed();
-                    println!("distance_duration0 时间间隔: {:?}", distance_duration0);
+                    //let distance_duration0 = distance_start.elapsed();
+                    //println!("distance_duration0 时间间隔: {:?}", distance_duration0);
                     (distance, truck)
                 })
                 .collect();
@@ -151,8 +151,8 @@ impl<
         };
         
         //println!("sorted_tow_trucks_by_distance[0] : {}",sorted_tow_trucks_by_distance[0]);
-        println!("sorted_tow_trucks_by_distance[0].0 : {}",sorted_tow_trucks_by_distance[0].0);
-        println!("sorted_tow_trucks_by_distance[1].0 : {}",sorted_tow_trucks_by_distance[0].0);
+        //println!("sorted_tow_trucks_by_distance[0].0 : {}",sorted_tow_trucks_by_distance[0].0);
+        //println!("sorted_tow_trucks_by_distance[1].0 : {}",sorted_tow_trucks_by_distance[0].0);
 
         if sorted_tow_trucks_by_distance.is_empty() || sorted_tow_trucks_by_distance[0].0 > 10000000
         {

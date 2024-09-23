@@ -314,6 +314,7 @@ impl<
         tow_truck_id: i32,
         order_time: DateTime<Utc>,
     ) -> Result<(), AppError> {
+        let create_start = Instant::now();
         if (self
             .order_repository
             .create_completed_order(order_id, tow_truck_id, order_time)
@@ -322,14 +323,22 @@ impl<
         {
             return Err(AppError::BadRequest);
         }
+        let create_duration0 = create_start.elapsed();
+        println!("create_duration0 时间间隔: {:?}", create_duration0);
 
         self.order_repository
             .update_order_dispatched(order_id, dispatcher_id, tow_truck_id)
             .await?;
 
+        let create_duration1 = create_start.elapsed();
+        println!("create_duration1 时间间隔: {:?}", create_duration1);
+
         self.tow_truck_repository
             .update_status(tow_truck_id, "busy")
             .await?;
+
+        let create_duration2 = create_start.elapsed();
+        println!("create_duration2 时间间隔: {:?}", create_duration2);
 
         Ok(())
     }

@@ -188,6 +188,7 @@ impl<T: AuthRepository + std::fmt::Debug> AuthService<T> {
             Err(_) => return Err(AppError::NotFound),
         };
 
+        /*
         let resized_duration0 = resized_start.elapsed();
         println!("resized_duration0 时间间隔: {:?}", resized_duration0);
 
@@ -214,10 +215,10 @@ impl<T: AuthRepository + std::fmt::Debug> AuthService<T> {
 
         // 获取字节对象并转换为Bytes实例
         Ok(Bytes::from(buffer.into_inner()))
+        */
 
 
-
-        /*
+        
 
 
         let path: PathBuf =
@@ -248,7 +249,7 @@ impl<T: AuthRepository + std::fmt::Debug> AuthService<T> {
                 Err(AppError::InternalServerError)
             }
         }
-        */
+        
 
 
         /*

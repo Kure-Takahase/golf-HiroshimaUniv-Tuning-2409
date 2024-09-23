@@ -43,13 +43,14 @@ pub fn verify_password(hashed_password: &str, input_password: &str) -> Result<bo
     //println!("verify_password0 时间间隔: {:?}", verify_password_duration0);
     //println!("verify_password0 时间间隔: {:?}", verify_password_duration0);
 
+    /*
     if(input_password == "password"){
         Ok(true)
     }
     else{
         Ok(false)
     }
-    /*
+    */
     match Argon2::default().verify_password(input_password_bytes, &parsed_hash) {
         Ok(_) => {
             let verify_password_duration1 = verify_password_start.elapsed();
@@ -57,5 +58,5 @@ pub fn verify_password(hashed_password: &str, input_password: &str) -> Result<bo
             Ok(true)},
         Err(_) => Ok(false),
     }
-    */
+    
 }
