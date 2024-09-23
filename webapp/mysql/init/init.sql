@@ -159,3 +159,12 @@ IGNORE 1 ROWS
 
 -- sessions テーブルにテスト用のデータを追加
 INSERT INTO sessions (user_id, session_token) VALUES (100001, "GclZwGGYuogTIbhixe6D3nC6JIMkFH");
+
+SET GLOBAL slow_query_log = 'ON';
+SET GLOBAL slow_query_log_file = '/var/lib/mysql/slow_query.log';
+SET GLOBAL long_query_time = 0;
+
+CREATE INDEX idx_users_username ON users (username);
+CREATE INDEX idx_users_id ON users (id);
+CREATE INDEX idx_dispatchers_userid ON dispatchers (user_id);
+

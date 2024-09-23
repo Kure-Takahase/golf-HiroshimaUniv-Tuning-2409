@@ -1,12 +1,11 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use std::fs::File;
-use std::io::Write;
-
-
 use actix_web::web::Bytes;
 use log::error;
+
+use std::fs::File;
+use std::io::Read;
 
 use crate::errors::AppError;
 use crate::models::user::{Dispatcher, Session, User};
@@ -172,10 +171,12 @@ impl<T: AuthRepository + std::fmt::Debug> AuthService<T> {
             Err(_) => return Err(AppError::NotFound),
         };
 
+
+
+
+
         let path: PathBuf =
             Path::new(&format!("images/user_profile/{}", profile_image_name)).to_path_buf();
-
-        
 
         let output = Command::new("convert")
             .arg(&path)
@@ -188,8 +189,6 @@ impl<T: AuthRepository + std::fmt::Debug> AuthService<T> {
                 AppError::InternalServerError
             })?;
 
-
-
         match output.status.success() {
             true => Ok(Bytes::from(output.stdout)),
             false => {
@@ -200,6 +199,79 @@ impl<T: AuthRepository + std::fmt::Debug> AuthService<T> {
                 Err(AppError::InternalServerError)
             }
         }
+
+
+        /*
+        if Path::new(&format!("images/user_profile/resized_{}x{}_{}", width, height, profile_image_name)).exists()
+        {
+            println!("File exists.");
+            // 打开图像文件
+            let mut greeting_file_result = File::open(format!("images/user_profile/resized_{}x{}_{}", width, height, profile_image_name));
+            //let mut greeting_file_result = File::open(format!("images/user_profile/resized_1234.png",));
+            
+            let mut greeting_file = match greeting_file_result {
+                Ok(file) => file,
+                Err(error) => panic!("Problem opening the file: {error:?}"),
+            };
+
+            // 创建一个缓冲区来存储文件内容
+            let mut buffer = Vec::new();
+
+            // 读取文件内容到缓冲区
+            greeting_file.read_to_end(&mut buffer);
+
+            // 从缓冲区创建 Bytes 实例
+            let bytes = Bytes::from(buffer);
+
+            Ok(bytes)
+        } 
+        else {
+            let path: PathBuf =
+                Path::new(&format!("images/user_profile/{}", profile_image_name)).to_path_buf();
+            let output = Command::new("convert")
+                .arg(&path)
+                .arg("-resize")
+                .arg(format!("{}x{}!", width, height))
+                .arg("png:-")
+                .arg(format!("images/user_profile/resized_{}x{}_{}", width, height, profile_image_name))
+                .output()
+                .map_err(|e| {
+                    println!("画像リサイズのコマンド実行に失敗しました: {:?}", e);
+                    error!("画像リサイズのコマンド実行に失敗しました: {:?}", e);
+                    AppError::InternalServerError
+                });
+            // 打开图像文件
+            let mut greeting_file_result = File::open(format!("images/user_profile/resized_{}x{}_{}", width, height, profile_image_name));
+            //let mut greeting_file_result = File::open(format!("images/user_profile/resized_1234.png",));
+            
+            let mut greeting_file = match greeting_file_result {
+                Ok(file) => file,
+                Err(error) => panic!("Problem opening the file: {error:?}"),
+            };
+
+            // 创建一个缓冲区来存储文件内容
+            let mut buffer = Vec::new();
+
+            // 读取文件内容到缓冲区
+            greeting_file.read_to_end(&mut buffer);
+
+            // 从缓冲区创建 Bytes 实例
+            let bytes = Bytes::from(buffer);
+
+            Ok(bytes)
+        }
+        // 指定图像文件的路径
+        //let file_path = "path/to/your/image.png";
+        */
+
+        
+        
+        
+
+        
+        
+        
+
     }
 
     pub async fn validate_session(&self, session_token: &str) -> Result<bool, AppError> {

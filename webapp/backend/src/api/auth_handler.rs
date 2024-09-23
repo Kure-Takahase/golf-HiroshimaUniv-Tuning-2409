@@ -74,16 +74,6 @@ pub struct UserProfileImageQueryParams {
 }
 
 
-fn save_image_bytes_to_file(image_bytes: &[u8], file_path: &str) -> std::io::Result<()> {
-    // 创建文件
-    let mut file = File::create(Path::new(file_path))?;
-    
-    // 将字节数组写入文件
-    file.write_all(image_bytes)?;
-    
-    Ok(())
-}
-
 
 pub async fn user_profile_image_handler(
     service: web::Data<AuthService<AuthRepositoryImpl>>,
@@ -101,8 +91,10 @@ pub async fn user_profile_image_handler(
         .get_resized_profile_image_byte(user_id, width, height)
         .await?;
 
+    
     Ok(HttpResponse::Ok()
         .content_type("image/png")
+        .append_header(("Cache-Control", "max-age=3600"))
         .body(profile_image_byte))
     
 
