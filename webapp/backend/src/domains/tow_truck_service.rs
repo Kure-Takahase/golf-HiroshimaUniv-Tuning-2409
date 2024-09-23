@@ -130,7 +130,7 @@ impl<
                 .map(|truck| {
                     println!("distance_duration0 开始计时");
                     let distance_start = Instant::now();
-                    let distance = calculate_distance(&graph, truck.node_id, order.node_id);
+                    let distance = calculate_distance(&mut graph, truck.node_id, order.node_id);
                     let distance_duration0 = distance_start.elapsed();
                     println!("distance_duration0 时间间隔: {:?}", distance_duration0);
                     (distance, truck)
@@ -169,6 +169,6 @@ impl<
     }
 }
 
-fn calculate_distance(graph: &Graph, node_id_1: i32, node_id_2: i32) -> i32 {
+fn calculate_distance(graph: &mut Graph, node_id_1: i32, node_id_2: i32) -> i32 {
     graph.shortest_path(node_id_1, node_id_2)
 }
