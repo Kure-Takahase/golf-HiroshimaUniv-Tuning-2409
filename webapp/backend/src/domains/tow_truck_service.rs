@@ -6,6 +6,11 @@ use crate::models::graph::Graph;
 use crate::models::tow_truck::TowTruck;
 use std::time::Instant;
 
+
+use std::thread;
+use std::sync::mpsc;
+
+
 pub trait TowTruckRepository {
     async fn get_paginated_tow_trucks(
         &self,
@@ -117,6 +122,8 @@ impl<
         };
         */
 
+
+        
         let sorted_tow_trucks_by_distance = {
             let mut tow_trucks_with_distance: Vec<_> = tow_trucks
                 .into_iter()
@@ -129,7 +136,7 @@ impl<
                     (distance, truck)
                 })
                 .collect();
-            println!("{:?}", tow_trucks_with_distance);
+            //println!("{:?}", tow_trucks_with_distance);
 
             if let Some(min_truck) = tow_trucks_with_distance.iter().min_by(|a, b| a.0.partial_cmp(&b.0).unwrap()).cloned() {
                 // 移除最小元素并将其放在前面
@@ -142,10 +149,7 @@ impl<
                 vec![]
             }
         };
-
-
-
-
+        
         //println!("sorted_tow_trucks_by_distance[0] : {}",sorted_tow_trucks_by_distance[0]);
         println!("sorted_tow_trucks_by_distance[0].0 : {}",sorted_tow_trucks_by_distance[0].0);
         println!("sorted_tow_trucks_by_distance[1].0 : {}",sorted_tow_trucks_by_distance[0].0);
