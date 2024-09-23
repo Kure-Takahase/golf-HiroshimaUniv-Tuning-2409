@@ -58,7 +58,7 @@ pub async fn login_handler(
         Ok(response) => {
             // 打印计算结果和运行时间
             let duration = start.elapsed();
-            println!("login_handler 时间间隔: {:?}", duration);
+            //println!("login_handler 时间间隔: {:?}", duration);
             Ok(HttpResponse::Ok().json(response))
         },
         Err(err) => Err(err),
@@ -105,7 +105,7 @@ pub async fn user_profile_image_handler(
 
     // 打印计算结果和运行时间
     let image_duration = image_start.elapsed();
-    println!("user_profile_image_handler 时间间隔: {:?}", image_duration);
+    //println!("user_profile_image_handler 时间间隔: {:?}", image_duration);
 
     Ok(HttpResponse::Ok()
         .content_type("image/png")

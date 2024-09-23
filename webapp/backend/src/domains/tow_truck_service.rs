@@ -108,10 +108,14 @@ impl<
                     (distance, truck)
                 })
                 .collect();
+            println!("{:?}", tow_trucks_with_distance);
 
             tow_trucks_with_distance.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
             tow_trucks_with_distance
         };
+        //println!("sorted_tow_trucks_by_distance[0] : {}",sorted_tow_trucks_by_distance[0]);
+        println!("sorted_tow_trucks_by_distance[0].0 : {}",sorted_tow_trucks_by_distance[0].0);
+        println!("sorted_tow_trucks_by_distance[1].0 : {}",sorted_tow_trucks_by_distance[0].0);
 
         if sorted_tow_trucks_by_distance.is_empty() || sorted_tow_trucks_by_distance[0].0 > 10000000
         {
@@ -123,6 +127,7 @@ impl<
             .map(|(_, truck)| TowTruckDto::from_entity(truck))
             .collect();
 
+        //println!("sorted_tow_truck_dtos.first() : {}",sorted_tow_truck_dtos.first());
         Ok(sorted_tow_truck_dtos.first().cloned())
     }
 }

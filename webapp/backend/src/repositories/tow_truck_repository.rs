@@ -2,6 +2,7 @@ use crate::domains::tow_truck_service::TowTruckRepository;
 use crate::errors::AppError;
 use crate::models::tow_truck::TowTruck;
 use sqlx::mysql::MySqlPool;
+use sqlx::query_as;
 
 #[derive(Debug)]
 pub struct TowTruckRepositoryImpl {
@@ -22,6 +23,7 @@ impl TowTruckRepository for TowTruckRepositoryImpl {
         status: Option<String>,
         area_id: Option<i32>,
     ) -> Result<Vec<TowTruck>, AppError> {
+
         let where_clause = match (status, area_id) {
             (Some(status), Some(area_id)) => format!(
                 "WHERE tt.status = '{}' AND tt.area_id = {} AND l.timestamp = (SELECT MAX(timestamp) FROM locations WHERE tow_truck_id = tt.id)",
@@ -78,6 +80,9 @@ impl TowTruckRepository for TowTruckRepositoryImpl {
             .await?;
 
         Ok(tow_trucks)
+
+
+
     }
 
     async fn update_location(&self, tow_truck_id: i32, node_id: i32) -> Result<(), AppError> {

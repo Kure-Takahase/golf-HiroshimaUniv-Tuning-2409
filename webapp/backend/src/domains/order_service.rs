@@ -1,5 +1,9 @@
 use chrono::{DateTime, Utc};
 
+use image::{GenericImageView, ImageBuffer};
+
+use std::time::Instant;
+
 use super::{
     auth_service::AuthRepository, dto::order::OrderDto, map_service::MapRepository,
     tow_truck_service::TowTruckRepository,
@@ -79,7 +83,13 @@ impl<
     }
 
     pub async fn get_order_by_id(&self, id: i32) -> Result<OrderDto, AppError> {
+
+        let order_start = Instant::now();
+
         let order = self.order_repository.find_order_by_id(id).await?;
+
+        let order_duration0 = order_start.elapsed();
+        println!("order_duration0 时间间隔: {:?}", order_duration0);
 
         let client_username = self
             .auth_repository
@@ -89,6 +99,9 @@ impl<
             .unwrap()
             .username;
 
+        let order_duration1 = order_start.elapsed();
+        println!("order_duration1 时间间隔: {:?}", order_duration1);
+
         let dispatcher = match order.dispatcher_id {
             Some(dispatcher_id) => self
                 .auth_repository
@@ -97,6 +110,9 @@ impl<
                 .unwrap(),
             None => None,
         };
+
+        let order_duration2 = order_start.elapsed();
+        println!("order_duration2 时间间隔: {:?}", order_duration2);
 
         let (dispatcher_user_id, dispatcher_username) = match dispatcher {
             Some(dispatcher) => (
@@ -113,6 +129,9 @@ impl<
             None => (None, None),
         };
 
+        let order_duration3 = order_start.elapsed();
+        println!("order_duration3 时间间隔: {:?}", order_duration3);
+
         let tow_truck = match order.tow_truck_id {
             Some(tow_truck_id) => self
                 .tow_truck_repository
@@ -121,6 +140,9 @@ impl<
                 .unwrap(),
             None => None,
         };
+
+        let order_duration4 = order_start.elapsed();
+        println!("order_duration4 时间间隔: {:?}", order_duration4);
 
         let (driver_user_id, driver_username) = match tow_truck {
             Some(tow_truck) => (
@@ -137,11 +159,17 @@ impl<
             None => (None, None),
         };
 
+        let order_duration5 = order_start.elapsed();
+        println!("order_duration5 时间间隔: {:?}", order_duration5);
+
         let area_id = self
             .map_repository
             .get_area_id_by_node_id(order.node_id)
             .await
             .unwrap();
+
+        let order_duration6 = order_start.elapsed();
+        println!("order_duration6 时间间隔: {:?}", order_duration6);
 
         Ok(OrderDto {
             id: order.id,

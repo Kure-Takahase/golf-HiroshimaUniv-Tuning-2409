@@ -51,6 +51,7 @@ impl OrderRepository for OrderRepositoryImpl {
         status: Option<String>,
         area: Option<i32>,
     ) -> Result<Vec<Order>, AppError> {
+        /*
         let offset = page * page_size;
         let order_clause = format!(
             "ORDER BY {} {}",
@@ -96,6 +97,65 @@ impl OrderRepository for OrderRepositoryImpl {
             LIMIT ? 
             OFFSET ?",
             where_clause, order_clause
+        );
+        */
+        let offset = page * page_size;
+
+        // Construct the ORDER BY clause safely
+        let order_clause = format!(
+            "ORDER BY {} {}",
+            match sort_by.as_deref() {
+                Some("car_value") => "o.car_value",
+                Some("status") => "o.status",
+                Some("order_time") => "o.order_time",
+                _ => "o.order_time",
+            },
+            match sort_order.as_deref() {
+                Some("DESC") | Some("desc") => "DESC",
+                _ => "ASC",
+            }
+        );
+
+        // Conditionally include JOIN and WHERE clauses
+        let (join_clause, where_clause) = match (status.clone(), area) {
+            (Some(_), Some(_)) => (
+                "JOIN nodes n ON o.node_id = n.id",
+                "WHERE o.status = ? AND n.area_id = ?".to_string(),
+            ),
+            (None, Some(_)) => (
+                "JOIN nodes n ON o.node_id = n.id",
+                "WHERE n.area_id = ?".to_string(),
+            ),
+            (Some(_), None) => (
+                "", // No JOIN needed when area is not specified
+                "WHERE o.status = ?".to_string(),
+            ),
+            _ => (
+                "", // No JOIN or WHERE clause needed
+                "".to_string(),
+            ),
+        };
+
+        // Build the final SQL query
+        let sql = format!(
+            "SELECT 
+                o.id, 
+                o.client_id, 
+                o.dispatcher_id, 
+                o.tow_truck_id, 
+                o.status, 
+                o.node_id, 
+                o.car_value, 
+                o.order_time, 
+                o.completed_time
+            FROM
+                orders o
+            {}  -- Conditionally include JOIN
+            {}  -- Conditionally include WHERE
+            {}  -- ORDER BY clause
+            LIMIT ? 
+            OFFSET ?",
+            join_clause, where_clause, order_clause
         );
 
         let orders = match (status, area) {

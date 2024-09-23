@@ -163,4 +163,9 @@ INSERT INTO sessions (user_id, session_token) VALUES (100001, "GclZwGGYuogTIbhix
 CREATE INDEX idx_users_username ON users (username);
 CREATE INDEX idx_users_id ON users (id);
 CREATE INDEX idx_dispatchers_userid ON dispatchers (user_id);
+CREATE INDEX idx_orders_id ON orders (id);
+CREATE INDEX idx_nodes_id ON nodes (id);
+
+
+
 

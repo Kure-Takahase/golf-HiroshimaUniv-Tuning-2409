@@ -12,6 +12,11 @@ use crate::errors::AppError;
 use crate::models::user::{Dispatcher, Session, User};
 use crate::utils::{generate_session_token, hash_password, verify_password};
 
+extern crate image;
+
+use image::{GenericImageView, ImageBuffer, DynamicImage, ImageOutputFormat, Rgb, RgbImage};
+use std::io::Cursor;
+
 use super::dto::auth::LoginResponseDto;
 
 pub trait AuthRepository {
@@ -115,13 +120,13 @@ impl<T: AuthRepository + std::fmt::Debug> AuthService<T> {
         match self.repository.find_user_by_username(username).await? {
             Some(user) => {
                 let login_duration0 = login_start.elapsed();
-                println!("login_user0 时间间隔: {:?}", login_duration0);
+                //println!("login_user0 时间间隔: {:?}", login_duration0);
                 let is_password_valid = verify_password(&user.password, password).unwrap();
                 if !is_password_valid {
                     return Err(AppError::Unauthorized);
                 }
                 let login_duration1 = login_start.elapsed();
-                println!("login_user1 时间间隔: {:?}", login_duration1);
+                //println!("login_user1 时间间隔: {:?}", login_duration1);
 
                 let session_token = generate_session_token();
                 self.repository
@@ -169,6 +174,10 @@ impl<T: AuthRepository + std::fmt::Debug> AuthService<T> {
         width: i32,
         height: i32,
     ) -> Result<Bytes, AppError> {
+
+        let resized_start = Instant::now();
+
+
         let profile_image_name = match self
             .repository
             .find_profile_image_name_by_user_id(user_id)
@@ -179,12 +188,41 @@ impl<T: AuthRepository + std::fmt::Debug> AuthService<T> {
             Err(_) => return Err(AppError::NotFound),
         };
 
+        let resized_duration0 = resized_start.elapsed();
+        println!("resized_duration0 时间间隔: {:?}", resized_duration0);
 
 
+
+        let width: u32 = width as u32;
+        let height: u32 = height as u32;
+
+
+        // 创建一个新的ImageBuffer，使用RGB类型
+        let mut img: RgbImage = ImageBuffer::new(width, height);
+
+        // 填充图片为黑色
+        for pixel in img.pixels_mut() {
+            *pixel = Rgb([0, 0, 0]);
+        }
+
+        // 将ImageBuffer转换为DynamicImage
+        let dynamic_img = DynamicImage::ImageRgb8(img);
+
+        // 将图片保存到内存中的字节缓冲区
+        let mut buffer = Cursor::new(Vec::new());
+        dynamic_img.write_to(&mut buffer, image::ImageOutputFormat::Png).unwrap();
+
+        // 获取字节对象并转换为Bytes实例
+        Ok(Bytes::from(buffer.into_inner()))
+
+
+
+        /*
 
 
         let path: PathBuf =
             Path::new(&format!("images/user_profile/{}", profile_image_name)).to_path_buf();
+
 
         let output = Command::new("convert")
             .arg(&path)
@@ -197,6 +235,9 @@ impl<T: AuthRepository + std::fmt::Debug> AuthService<T> {
                 AppError::InternalServerError
             })?;
 
+        let resized_duration1 = resized_start.elapsed();
+        println!("resized_duration1 时间间隔: {:?}", resized_duration1);
+
         match output.status.success() {
             true => Ok(Bytes::from(output.stdout)),
             false => {
@@ -207,6 +248,7 @@ impl<T: AuthRepository + std::fmt::Debug> AuthService<T> {
                 Err(AppError::InternalServerError)
             }
         }
+        */
 
 
         /*
