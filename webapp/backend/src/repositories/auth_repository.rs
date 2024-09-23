@@ -2,6 +2,7 @@ use crate::errors::AppError;
 use crate::models::user::{Dispatcher, User};
 use crate::{domains::auth_service::AuthRepository, models::user::Session};
 use sqlx::mysql::MySqlPool;
+use std::time::Instant;
 
 #[derive(Debug)]
 pub struct AuthRepositoryImpl {
@@ -25,10 +26,16 @@ impl AuthRepository for AuthRepositoryImpl {
     }
 
     async fn find_user_by_username(&self, username: &str) -> Result<Option<User>, AppError> {
+
+        let login_re = Instant::now();
+
         let user = sqlx::query_as::<_, User>("SELECT * FROM users WHERE username = ?")
             .bind(username)
             .fetch_optional(&self.pool)
             .await?;
+
+        let login_re_duration1 = login_re.elapsed();
+        println!("find_user_by_username 时间间隔: {:?}", login_re_duration1);
 
         Ok(user)
     }

@@ -91,10 +91,12 @@ pub async fn user_profile_image_handler(
     query: web::Query<UserProfileImageQueryParams>,
 ) -> Result<HttpResponse, AppError> {
 
+    //println!("user_profile_image_handler");
     let image_start = Instant::now();
     let user_id = path.into_inner();
     let width = query.w.unwrap_or(500);
     let height = query.h.unwrap_or(500);
+    //println!("user_profile_image_handler");
 
     
     let profile_image_byte = service
@@ -102,8 +104,8 @@ pub async fn user_profile_image_handler(
         .await?;
 
     // 打印计算结果和运行时间
-    //let image_duration = image_start.elapsed();
-    //println!("user_profile_image_handler 时间间隔: {:?}", image_duration);
+    let image_duration = image_start.elapsed();
+    println!("user_profile_image_handler 时间间隔: {:?}", image_duration);
 
     Ok(HttpResponse::Ok()
         .content_type("image/png")

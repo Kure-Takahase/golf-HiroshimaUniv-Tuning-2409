@@ -6,6 +6,7 @@ use log::error;
 
 use std::fs::File;
 use std::io::Read;
+use std::time::Instant;
 
 use crate::errors::AppError;
 use crate::models::user::{Dispatcher, Session, User};
@@ -110,17 +111,24 @@ impl<T: AuthRepository + std::fmt::Debug> AuthService<T> {
         username: &str,
         password: &str,
     ) -> Result<LoginResponseDto, AppError> {
+        let login_start = Instant::now();
         match self.repository.find_user_by_username(username).await? {
             Some(user) => {
+                let login_duration0 = login_start.elapsed();
+                println!("login_user0 时间间隔: {:?}", login_duration0);
                 let is_password_valid = verify_password(&user.password, password).unwrap();
                 if !is_password_valid {
                     return Err(AppError::Unauthorized);
                 }
+                let login_duration1 = login_start.elapsed();
+                println!("login_user1 时间间隔: {:?}", login_duration1);
 
                 let session_token = generate_session_token();
                 self.repository
                     .create_session(user.id, &session_token)
                     .await?;
+
+
 
                 match user.role.as_str() {
                     "dispatcher" => {
