@@ -9,7 +9,7 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-
+use std::time::Instant;
 
 #[derive(Deserialize, Debug)]
 pub struct ValidateSessionQueryParams {
@@ -51,10 +51,20 @@ pub async fn login_handler(
     service: web::Data<AuthService<AuthRepositoryImpl>>,
     req: web::Json<LoginRequestDto>,
 ) -> Result<HttpResponse, AppError> {
+    //println!("hello,world!");
+    let start = Instant::now();
+
     match service.login_user(&req.username, &req.password).await {
-        Ok(response) => Ok(HttpResponse::Ok().json(response)),
+        Ok(response) => {
+            // 打印计算结果和运行时间
+            let duration = start.elapsed();
+            println!("login_handler 时间间隔: {:?}", duration);
+            Ok(HttpResponse::Ok().json(response))
+        },
         Err(err) => Err(err),
     }
+
+
 }
 
 pub async fn logout_handler(
@@ -81,7 +91,7 @@ pub async fn user_profile_image_handler(
     query: web::Query<UserProfileImageQueryParams>,
 ) -> Result<HttpResponse, AppError> {
 
-
+    let image_start = Instant::now();
     let user_id = path.into_inner();
     let width = query.w.unwrap_or(500);
     let height = query.h.unwrap_or(500);
@@ -91,7 +101,10 @@ pub async fn user_profile_image_handler(
         .get_resized_profile_image_byte(user_id, width, height)
         .await?;
 
-    
+    // 打印计算结果和运行时间
+    //let image_duration = image_start.elapsed();
+    //println!("user_profile_image_handler 时间间隔: {:?}", image_duration);
+
     Ok(HttpResponse::Ok()
         .content_type("image/png")
         .append_header(("Cache-Control", "max-age=3600"))
